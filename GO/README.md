@@ -31,7 +31,7 @@ Processing workflow is show in the diagram below, dataset size is shown after ea
    - Scale: 18090 rows, 4403 columns, 90 biomes
    - Accuracy: 0.991
 5. Test dataset:
-   - Scale: 8911 rows, 4403 cilumns, 90 biomes
+   - Scale: 8911 rows, 4403 columns, 90 biomes
    - Accuracy: 0.989
 ## Result:<br/>
 So far the hightest accuracy on test dataset is 0.989<br/>
