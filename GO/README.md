@@ -41,7 +41,7 @@ Confusion matrix:<br/>
 
 Feature importance on top features:<br/>
 
-<img width="740" alt="Mgnify_data_processing_flowchart" src="https://user-images.githubusercontent.com/51136218/122094583-548ca480-cdda-11eb-8a14-6d74cd18e814.png">
+<img width="540" alt="Mgnify_data_processing_flowchart" src="https://user-images.githubusercontent.com/51136218/122094583-548ca480-cdda-11eb-8a14-6d74cd18e814.png">
 
 
 
