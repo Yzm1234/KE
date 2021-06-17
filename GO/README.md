@@ -19,9 +19,9 @@ model = CatBoostClassifier(
 )
 ```  
 ## Data processing:<br/>
-All Notebooks for data processing is held in directory `data_processing`<br/>
-Processing workflow is show in the diagram below, dataset size is shown after each operation:
-<img width="740" alt="Mgnify_data_processing_flowchart" src="https://user-images.githubusercontent.com/51136218/122092190-a41da100-cdd7-11eb-926f-3627c3c6a01a.png">
+Processing workflow is in the diagram below, dataset size is shown after each operation:
+<img width="740" alt="Mgnify_data_processing_flowchart" src="https://user-images.githubusercontent.com/51136218/122092190-a41da100-cdd7-11eb-926f-3627c3c6a01a.png"><br/>
+Detailed description and all Notebooks are held in directory [data_processing](data_processing)<br/>
 
 ## Dataset:<br/>
 1. Training dataset:
@@ -33,6 +33,7 @@ Processing workflow is show in the diagram below, dataset size is shown after ea
 5. Test dataset:
    - Scale: 8911 rows, 4403 columns, 90 biomes
    - Accuracy: 0.989
+
 ## Result:<br/>
 So far the hightest accuracy on test dataset is 0.989<br/>
 Confusion matrix:<br/>
