@@ -1,4 +1,5 @@
 # Data processing pipeline:<br />
+![alt text](Mgnify_data_processing_flowchart.png "Title")
 1. transform:from Mgnify database generating go_aggregated.tsv file<br />
 2. get_labels: get biome labels for go_aggregated.tsv file<br />
 3. remove_duplicated_rows: remove dplicated rows<br />
