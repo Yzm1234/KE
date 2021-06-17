@@ -1,8 +1,11 @@
 # Data processing pipeline:<br />
 ![alt text](Mgnify_data_processing_flowchart.png "Title")
-1. transform:from Mgnify database generating go_aggregated.tsv file<br />
-2. get_labels: get biome labels for go_aggregated.tsv file<br />
-3. remove_duplicated_rows: remove dplicated rows<br />
-4. generate_dataset: creating dataset for Catboost model: the input tsv file will be randomly splited to train, validation and test dataset, this steps is not neccessary if pandas dataframe is used to run Catboost model <br />
-5. feature_normalization: scale all numerical features into range (0,1)<br />
-6. dataset_balancing: using oversample tool SMOTE to balance data<br />
+1. **Aggregation**: Collect dataset from Mgnify database, aggregated samples from diffrent studies' directories
+2. **Select and filtering**: 
+    - Select rows and columns whose sum is not zero;<br />
+    - Select samples with pipeline version 4.1; <br />
+    - Select samples with exptype metagenomic or assembly
+3. **Update biomes**: update "root:Mixed" biomes with more detailed labels <br />
+    - e.g. "root:Mixed" -> "root:Mixed:temperate grassland:soil:Caterpillar"
+4. **Feature normalization** (aka data scaling): using minmaxscaler to scale all numerical features in range [0,1] <br />
+5. **Class balancing**: using [SMOTE](https://imbalanced-learn.org/stable/install.html) undersmapler downsampling majority classes and oversampler oversampling minority calsses
