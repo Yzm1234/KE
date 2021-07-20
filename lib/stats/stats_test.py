@@ -1,6 +1,7 @@
 import unittest
 from scipy.stats import pearsonr
 from stats import *
+import numpy as np
 
 
 class TestStats(unittest.TestCase):
@@ -22,6 +23,18 @@ class TestStats(unittest.TestCase):
                     true_pcc[i][j] = p
                     true_pcc[j][i] = p
         self.assertEqual(np.round(my_pcc, 5).all(), np.round(true_pcc, 5).all())
+
+    def test_feature_selection_method(self):
+        """
+        This test checks if each pair features' pearson correlation is below the threshold
+        """
+        pcc = generate_symmetric_matrix(0.75, 1, (10, 10))
+        feature_mask = feature_extraction(pcc, 0.9)
+        true_idx = np.where(feature_mask)[0]  # return index of True item in feature_mask
+        for i in range(len(true_idx) - 1):
+            for j in range(i + 1, len(true_idx)):
+                r, c = true_idx[i], true_idx[j]
+                self.assertTrue(pcc[r, c] < 0.9)
 
 
 if __name__ == '__main__':
