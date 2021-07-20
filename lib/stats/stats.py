@@ -2,6 +2,9 @@ import csv
 import pandas as pd
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from matplotlib.pyplot import figure
 
 
 def pearson_correlation_coefficient(X):
@@ -50,3 +53,19 @@ def generate_symmetric_matrix(low_bound, high_bound, shape):
     np.fill_diagonal(b_symm, 0)
     b_symm
     return b_symm
+
+
+def barh_counter(input_list):
+    """
+    This method takes a list and plot bar plot of its items' frequency distribution, no tests
+    :param input_list: the target list of items need to be ploted
+    :type input_list: list
+    :return: a horizontal bar plot
+    :rtype: figure
+    """
+    counter = Counter(input_list)
+    labels, values = zip(*sorted(counter.items(), reverse=False, key=lambda x:x[1]))
+    figure(figsize=(10, 8), dpi=500)
+    plt.barh(range(len(labels)), values)
+    plt.yticks(range(len(labels)), labels, rotation=0, fontsize=6)
+    plt.show()
