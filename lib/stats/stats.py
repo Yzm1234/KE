@@ -4,6 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
+import seaborn as sns
 from matplotlib.pyplot import figure
 
 
@@ -69,3 +70,46 @@ def barh_counter(input_list):
     plt.barh(range(len(labels)), values)
     plt.yticks(range(len(labels)), labels, rotation=0, fontsize=6)
     plt.show()
+
+
+def correlation_heapmap(biome_pcc, biome_names):
+    """
+
+    :param biome_pcc:
+    :type biome_pcc:
+    :param biome_names:
+    :type biome_names:
+    :return:
+    :rtype:
+    """
+    ax = sns.heatmap(np.around(biome_pcc, decimals=2), annot=True, xticklabels=biome_names, yticklabels=biome_names)
+    bottom, top = ax.get_ylim()
+    ax.set_ylim(bottom + 0.5, top - 0.5)
+    fig = plt.gcf()
+    fig.set_size_inches(80, 60)
+    plt.xticks(fontsize=20, rotation = 90)
+    plt.yticks(fontsize=20)
+    fig.savefig('biome_correlation_heatmap.png', dpi=100, bbox_inches='tight')
+    plt.show()
+
+
+def pairwise_correlation(names_list, pcc_mat):
+    """
+    This method generates pair wise correlation table from pearson correlation coefficient matrix
+    :param names_list: the name list of the objects
+    :type names_list:  list
+    :param pcc_mat:  pearson correlation coefficient matrix
+    :type pcc_mat: numpy array
+    :return: a list of pair wise correlation value: ['object_1','object_2', 'pearson correlation'], first row is header
+    :rtype: list
+    """
+    res = [['object_1', 'object_2', 'pearson correlation']]
+    for i in range(len(names_list)-1):
+        for j in range(i+1, len(names_list)):
+            v = pcc_mat[i][j]
+            obj_1 = names_list[i]
+            obj_2 = names_list[j]
+            res.append([obj_1, obj_2, v])
+            res.append([obj_2, obj_1, v])
+    return res
+

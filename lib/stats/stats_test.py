@@ -36,6 +36,22 @@ class TestStats(unittest.TestCase):
                 r, c = true_idx[i], true_idx[j]
                 self.assertTrue(pcc[r, c] < 0.9)
 
+    def test_pairwise_correlation(self):
+        test_pcc = np.array([[0., 0.84, 0.9],
+                            [0.84, 0., 0.87],
+                            [0.9, 0.87, 0.]])
+
+        names = ['A', 'B', 'C']
+        res = pairwise_correlation(names, test_pcc)
+        target = [['object_1', 'object_2', 'pearson correlation'],
+                  ['A', 'B', 0.84],
+                  ['B', 'A', 0.84],
+                  ['A', 'C', 0.9],
+                  ['C', 'A', 0.9],
+                  ['B', 'C', 0.87],
+                  ['C', 'B', 0.87]]
+        self.assertEqual(res, target)
+
 
 if __name__ == '__main__':
     unittest.main()
