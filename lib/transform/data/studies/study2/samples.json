@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "type": "samples",
+      "id": "SRS009927",
+      "relationships": {
+        "biome": {
+          "data": {
+            "type": "biomes",
+            "id": "root:Environmental:Aquatic:Marine"
+          }
+        }
+      }
+    },
+    {
+      "type": "samples",
+      "id": "SRS009928",
+      "relationships": {
+        "biome": {
+          "data": {
+            "type": "biomes",
+            "id": "root:Environmental:Aquatic"
+          }
+        }
+      }
+    },
+    {
+      "type": "samples",
+      "id": "SRS009929",
+      "relationships": {
+        "biome": {
+          "data": {
+            "type": "biomes",
+            "id": "root:Mixed"
+          }
+        }
+      }
+    }
+  ]
+}

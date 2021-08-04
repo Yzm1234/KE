@@ -1,0 +1,5 @@
+id	study_id	sample_id	biome	exptype	go1	go2	go3	go4	taxa1	taxa2	taxa3	taxa4
+SRRid2	study1	SRS009922	root:Environmental:Aquatic:Marine	assembly	1	3	1	0	0	1	1	0
+SRRid3	study1	SRS009923	root:Environmental:Aquatic:Water	metagenomic	2	0	4	0	1	3	1	0
+ERZid7	study2	SRS009927	root:Environmental:Aquatic:Marine	undefined	1	3	0	1	0	1	0	1
+ERZid8	study2	SRS009928	root:Environmental:Aquatic	metagenomic	2	0	0	4	1	3	0	1

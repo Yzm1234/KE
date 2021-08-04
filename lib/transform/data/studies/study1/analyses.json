@@ -1,0 +1,68 @@
+{
+  "data": [
+    {
+      "type": "analysis-jobs",
+      "id": "MGYA00000250",
+      "attributes": {
+        "experiment-type": "assembly"
+      },
+      "relationships": {
+        "study": {
+          "data": {
+            "type": "studies",
+            "id": "study1"
+          }
+        },
+        "assembly": {
+          "data": {
+            "data": null
+          }
+        },
+        "run": {
+          "data": {
+            "type": "runs",
+            "id": "SRRid2"
+          }
+        },
+        "sample": {
+          "data": {
+            "type": "samples",
+            "id": "SRS009922"
+          }
+        }
+      }
+    },
+    {
+      "type": "analysis-jobs",
+      "id": "MGYA00000250",
+      "attributes": {
+        "experiment-type": "metagenomic"
+      },
+      "relationships": {
+        "study": {
+          "data": {
+            "type": "studies",
+            "id": "study1"
+          }
+        },
+        "assembly": {
+          "data": {
+            "data": null
+          }
+        },
+        "run": {
+          "data": {
+            "type": "runs",
+            "id": "SRRid3"
+          }
+        },
+        "sample": {
+          "data": {
+            "type": "samples",
+            "id": "SRS009923"
+          }
+        }
+      }
+    }
+  ]
+}
