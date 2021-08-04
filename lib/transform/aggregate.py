@@ -4,6 +4,18 @@ import pandas as pd
 import numpy as np
 import csv
 
+def regex_filtered(a_list):
+    """
+    This method filters files name against certain pattern
+    :param a_list: original list with items
+    :type a_list: list
+    :return: a new list after filtering
+    :rtype: list
+    """
+    r = re.compile(".*\d_(GO|taxonomy)_abundances.*_v4.1.tsv")
+    new_list = list(filter(r.match, a_list))
+    return new_list
+
 
 def generate_all_aggregated(study_dict, output_file_path, studies, all_go_terms, all_taxa_terms):
     """
