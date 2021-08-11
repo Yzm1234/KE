@@ -1,6 +1,6 @@
 import csv
 import pandas as pd
-import os
+import scipy.cluster.hierarchy as sch
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -20,6 +20,36 @@ def pearson_correlation_coefficient(X):
     X_tilde = (X-X_mean)/X_std
     pcc = X_tilde@X_tilde.T/N
     return pcc
+
+
+def cluster_corr(corr_array, inplace=False):
+    """
+    Rearranges the correlation matrix, corr_array, so that groups of highly
+    correlated variables are next to eachother
+
+    Parameters
+    ----------
+    corr_array : pandas.DataFrame or numpy.ndarray
+        a NxN correlation matrix
+
+    Returns
+    -------
+    pandas.DataFrame or numpy.ndarray
+        a NxN correlation matrix with the columns and rows rearranged
+    """
+    pairwise_distances = sch.distance.pdist(corr_array)
+    linkage = sch.linkage(pairwise_distances, method='complete')
+    cluster_distance_threshold = pairwise_distances.max() / 2
+    idx_to_cluster_array = sch.fcluster(linkage, cluster_distance_threshold,
+                                        criterion='distance')
+    idx = np.argsort(idx_to_cluster_array)
+
+    if not inplace:
+        corr_array = corr_array.copy()
+
+    if isinstance(corr_array, pd.DataFrame):
+        return corr_array.iloc[idx, :].T.iloc[idx, :]
+    return corr_array[idx, :][:, idx]
 
 
 def feature_extraction(pcc_mat, cutoff):
@@ -72,7 +102,7 @@ def barh_counter(input_list):
     plt.show()
 
 
-def correlation_heapmap(biome_pcc, biome_names):
+def correlation_heatmap(biome_pcc, biome_names):
     """
 
     :param biome_pcc:
