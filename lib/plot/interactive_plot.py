@@ -1,6 +1,6 @@
 import numpy as np
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
+import os
 import plotly.express as px
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -83,7 +83,7 @@ def plot_pca(df, first_feature_numerical_col_idx=5, save=False, saved_file_name=
                                  'sample_id': True,
                                  'exptype': True
                                  },
-                     title='2D PCA colored by biome')
+                     title=os.path.splitext(saved_file_name)[0])
 
     fig.update_traces(marker=dict(size=13,
                                   line=dict(width=1.5,
@@ -119,7 +119,7 @@ def plot_tsne(df, first_feature_numerical_col_idx=5, save=False, saved_file_name
                                  'sample_id': True,
                                  'exptype': True
                                  },
-                     title='2D TSNE colored by biome')
+                     title=os.path.splitext(saved_file_name)[0])
 
     fig.update_traces(marker=dict(size=13,
                                   line=dict(width=1.5,
