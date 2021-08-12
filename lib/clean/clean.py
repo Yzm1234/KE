@@ -23,7 +23,6 @@ def rows_and_cols_quant_filter(data, skip_cols=5, cutoff=0, pandas=True):
         #         print(row_filtered_df)
         numerical_df = row_filtered_df.iloc[:, skip_cols:]
         numerical_df.loc['col sum', :] = numerical_df.sum(axis=0)
-        print(numerical_df)
         if max(numerical_df.loc['col sum'].values[skip_cols:-1]) <= cutoff:
             raise ValueError(
                 "cutoff is greater than all cols' sum, data will be empty after filtering. "
