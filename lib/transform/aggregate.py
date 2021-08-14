@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import csv
 
+
 def regex_filtered(a_list):
     """
     This method filters files name against certain pattern
@@ -20,18 +21,17 @@ def regex_filtered(a_list):
 def generate_all_aggregated(study_dict, output_file_path, studies, all_go_terms, all_taxa_terms):
     """
     This method generates aggregated
-    :param study_dict:
-    :type study_dict:
-    :param output_file_path:
-    :type output_file_path:
-    :param studies:
-    :type studies:
-    :param all_go_terms:
-    :type all_go_terms:
-    :param all_taxa_terms:
-    :type all_taxa_terms:
-    :return:
-    :rtype:
+    :param study_dict: a dict contains all files of interest in each Mgnify study directory : {study: [file1, file2]}
+    :type study_dict: python dictionary
+    :param output_file_path: path to output file
+    :type output_file_path: string
+    :param studies: path to Mgnify studies
+    :type studies: string
+    :param all_go_terms: all unique GO terms
+    :type all_go_terms: list
+    :param all_taxa_terms: all unique taxon terms
+    :type all_taxa_terms: list
+    :return: None
     """
     with open(output_file_path, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
@@ -61,7 +61,7 @@ def generate_all_aggregated(study_dict, output_file_path, studies, all_go_terms,
             # loop through go file
             for _, row in go_df.iterrows():
                 go_term = row['GO']
-                for _id in common_ids: # _id is run id or assembly id
+                for _id in common_ids:  # _id is run id or assembly id
                     if _id not in rows_dict:
                         rows_dict[_id] = {'id': _id, 'study_id': study_name}
                     rows_dict[_id][go_term] = row[_id]
@@ -69,7 +69,7 @@ def generate_all_aggregated(study_dict, output_file_path, studies, all_go_terms,
             # loop through taxa file
             for _, row in taxa_df.iterrows():
                 taxa_term = row['#SampleID']
-                for _id in common_ids: # _id is run id or assembly id
+                for _id in common_ids:  # _id is run id or assembly id
                     if _id not in rows_dict:
                         raise ValueError("id %s is in taxa but not in go file" % _id)
                     rows_dict[_id][taxa_term] = row[_id]
