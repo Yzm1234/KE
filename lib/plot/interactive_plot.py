@@ -314,17 +314,17 @@ def interactive_plot(x, y, labels, title='My Plot', save=False, plot_name=None):
         fig.write_html(plot_name)
 
 
-def plot_pca(df, first_feature_numerical_col_idx=5, hover_name='biome', color=color_map, save=False, saved_file_name='2D_PCA_colored_by_biome.html'):
+def plot_pca(df, first_feature_numerical_col_idx=5, hover_name='biome', color_by='biome', marker_color=color_map, save=False, saved_file_name='2D_PCA_colored_by_biome.html'):
     X = df.iloc[:, first_feature_numerical_col_idx:].to_numpy()
     pca_2d = PCA(n_components=2).fit_transform(X)
     df['pca_2d_x1'] = pca_2d[:, 0]
     df['pca_2d_x2'] = pca_2d[:, 1]
-    if type(color) == dict:
+    if type(marker_color) == dict:
         fig = px.scatter(df,
                          x='pca_2d_x1',
                          y='pca_2d_x2',
-                         color='biome',
-                         color_discrete_map=color,
+                         color=color_by,
+                         color_discrete_map=marker_color,
                          hover_name=hover_name,
                          hover_data={'pca_2d_x1': False,
                                      'pca_2d_x2': False,
@@ -340,7 +340,7 @@ def plot_pca(df, first_feature_numerical_col_idx=5, hover_name='biome', color=co
         fig = px.scatter(df,
                          x='pca_2d_x1',
                          y='pca_2d_x2',
-                         color='biome',
+                         color=color_by,
                          color_discrete_sequence=colors_list,
                          hover_name=hover_name,
                          hover_data={'pca_2d_x1': False,
@@ -369,17 +369,17 @@ def plot_pca(df, first_feature_numerical_col_idx=5, hover_name='biome', color=co
         fig.write_html(saved_file_name)
 
 
-def plot_tsne(df, first_feature_numerical_col_idx=5, hover_name='biome', color=color_map, save=False, saved_file_name='2D_TSNE_colored_by_biome.html'):
+def plot_tsne(df, first_feature_numerical_col_idx=5, hover_name='biome', color_by='biome', marker_color=color_map, save=False, saved_file_name='2D_TSNE_colored_by_biome.html'):
     X = df.iloc[:, first_feature_numerical_col_idx:].to_numpy()
     tsne_2d = TSNE(n_components=2).fit_transform(X)
     df['tsne_2d_x1'] = tsne_2d[:, 0]
     df['tsne_2d_x2'] = tsne_2d[:, 1]
-    if type(color) == dict:
+    if type(marker_color) == dict:
         fig = px.scatter(df,
                          x='tsne_2d_x1',
                          y='tsne_2d_x2',
-                         color='biome',
-                         color_discrete_map=color,
+                         color=color_by,
+                         color_discrete_map=marker_color,
                          hover_name=hover_name,
                          hover_data={'tsne_2d_x1': False,
                                      'tsne_2d_x2': False,
@@ -395,7 +395,7 @@ def plot_tsne(df, first_feature_numerical_col_idx=5, hover_name='biome', color=c
         fig = px.scatter(df,
                          x='tsne_2d_x1',
                          y='tsne_2d_x2',
-                         color='biome',
+                         color=color_by,
                          color_discrete_sequence=colors_list,
                          hover_name=hover_name,
                          hover_data={'tsne_2d_x1': False,
