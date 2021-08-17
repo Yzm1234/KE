@@ -22,7 +22,7 @@ def pearson_correlation_coefficient(X):
     return pcc
 
 
-def cluster_corr(corr_array, threshold=None, inplace=False):
+def cluster_corr(corr_array, distance_mathod=None, threshold=None, inplace=False):
     """
     Rearranges the correlation matrix, corr_array, so that groups of highly
     correlated variables are next to eachother
@@ -40,7 +40,10 @@ def cluster_corr(corr_array, threshold=None, inplace=False):
     pandas.DataFrame or numpy.ndarray
         a NxN correlation matrix with the columns and rows rearranged
     """
-    pairwise_distances = sch.distance.pdist(corr_array, metric='correlation')
+    if not distance_mathod:
+        pairwise_distances = sch.distance.pdist(corr_array, metric='correlation')
+    elif distance_mathod == "oneminus":
+        pairwise_distances = 1 - abs(corr_array)
     linkage = sch.linkage(pairwise_distances, method='complete')
     if not threshold:
         cluster_distance_threshold = pairwise_distances.max() / 2
