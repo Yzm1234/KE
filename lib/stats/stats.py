@@ -32,14 +32,15 @@ def cluster_corr(corr_array, threshold=None, inplace=False):
     corr_array : pandas.DataFrame or numpy.ndarray
         a NxN correlation matrix
     threshold:
-        :param threshold: the threshold of distance when doing clustering
+        :param threshold: the threshold of distance when doing clustering,
+                            the maximum inter-cluster distance allowed
         :type threshold: float between 0-1
     Returns
     -------
     pandas.DataFrame or numpy.ndarray
         a NxN correlation matrix with the columns and rows rearranged
     """
-    pairwise_distances = sch.distance.pdist(corr_array)
+    pairwise_distances = sch.distance.pdist(corr_array, metric='correlation')
     linkage = sch.linkage(pairwise_distances, method='complete')
     if not threshold:
         cluster_distance_threshold = pairwise_distances.max() / 2
