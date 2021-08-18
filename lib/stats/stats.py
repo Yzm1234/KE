@@ -1,6 +1,7 @@
 import csv
 import pandas as pd
 import scipy.cluster.hierarchy as sch
+from scipy.spatial.distance import squareform
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -44,7 +45,7 @@ def cluster_corr(corr_array, distance_mathod=None, threshold=None, inplace=False
         pairwise_distances = sch.distance.pdist(corr_array)#, metric='correlation')
     elif distance_mathod == "oneminus":
         pairwise_distances = 1 - abs(corr_array)
-    linkage = sch.linkage(pairwise_distances, method='complete')
+    linkage = sch.linkage(squareform(pairwise_distances), method='complete')
     if not threshold:
         cluster_distance_threshold = pairwise_distances.max() / 2
     else:
