@@ -44,8 +44,8 @@ def cluster_corr(corr_array, distance_mathod=None, threshold=None, inplace=False
     if not distance_mathod:
         pairwise_distances = sch.distance.pdist(corr_array)#, metric='correlation')
     elif distance_mathod == "oneminus":
-        pairwise_distances = 1 - abs(corr_array)
-    linkage = sch.linkage(squareform(pairwise_distances), method='complete')
+        pairwise_distances = squareform(1 - abs(corr_array))
+    linkage = sch.linkage(pairwise_distances, method='complete')
     if not threshold:
         cluster_distance_threshold = pairwise_distances.max() / 2
     else:
