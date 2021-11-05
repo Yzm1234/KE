@@ -23,7 +23,7 @@ def pearson_correlation_coefficient(X):
     return pcc
 
 
-def cluster_corr(corr_array, distance_mathod=None, threshold=None, inplace=False):
+def cluster_corr(corr_array, distance_mathod=None, absolute_value=True, threshold=None, inplace=False):
     """
     Rearranges the correlation matrix, corr_array, so that groups of highly
     correlated variables are next to eachother
@@ -36,6 +36,8 @@ def cluster_corr(corr_array, distance_mathod=None, threshold=None, inplace=False
         :param threshold: the threshold of distance when doing clustering,
                             the maximum inter-cluster distance allowed
         :type threshold: float between 0-1
+    absolute_value:
+        :param : if using absolute value of correlation
     Returns
     -------
     pandas.DataFrame or numpy.ndarray
@@ -44,7 +46,10 @@ def cluster_corr(corr_array, distance_mathod=None, threshold=None, inplace=False
     if not distance_mathod:
         pairwise_distances = sch.distance.pdist(corr_array)#, metric='correlation')
     elif distance_mathod == "oneminus":
-        pairwise_distances = squareform(1 - abs(corr_array))
+        if absolute_value:
+            pairwise_distances = squareform(1 - abs(corr_array))
+        else:
+            pairwise_distances = squareform(1 - corr_array)
     linkage = sch.linkage(pairwise_distances, method='complete')
     if not threshold:
         cluster_distance_threshold = pairwise_distances.max() / 2
@@ -112,24 +117,29 @@ def barh_counter(input_list):
     plt.show()
 
 
-def correlation_heatmap(biome_pcc, biome_names):
+def clustered_correlation_heatmap(corr_matrix, save_figure=True, figure_name="clustered_correlation_heatmap.png"):
     """
-
-    :param biome_pcc:
-    :type biome_pcc:
-    :param biome_names:
-    :type biome_names:
-    :return:
-    :rtype:
+    This method takes in a clustered correlation matrix and return a heatmap figure
+    :param corr_matrix: clustered correlatino matrix
+    :type corr_matrix: pandas data frame
+    :param save_figure: if save the heatmap
+    :type save_figure: boolean
+    :param figure_name: name of saved figure
+    :type figure_name: string
+    :return: an image
+    :rtype: image
     """
-    ax = sns.heatmap(np.around(biome_pcc, decimals=2), annot=True, xticklabels=biome_names, yticklabels=biome_names)
+    ax = sns.heatmap(np.around(corr_matrix, decimals=2), annot=True,
+                     cmap='coolwarm', vmin=-1, vmax=1,
+                     xticklabels=corr_matrix.index, yticklabels=corr_matrix.index)
     bottom, top = ax.get_ylim()
     ax.set_ylim(bottom + 0.5, top - 0.5)
     fig = plt.gcf()
     fig.set_size_inches(80, 60)
     plt.xticks(fontsize=20, rotation = 90)
     plt.yticks(fontsize=20)
-    fig.savefig('biome_correlation_heatmap.png', dpi=100, bbox_inches='tight')
+    if save_figure:
+        fig.savefig(figure_name, dpi=100, bbox_inches='tight')
     plt.show()
 
 
