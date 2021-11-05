@@ -24,7 +24,7 @@ def pearson_correlation_coefficient(X):
     return pcc
 
 
-def cluster_corr(corr_array, distance_mathod=None, absolute_value=True, threshold=None, inplace=False):
+def cluster_corr(corr_array, distance_method=None, absolute_value=True, threshold=None, inplace=False):
     """
     Rearranges the correlation matrix, corr_array, so that groups of highly
     correlated variables are next to eachother
@@ -44,9 +44,9 @@ def cluster_corr(corr_array, distance_mathod=None, absolute_value=True, threshol
     pandas.DataFrame or numpy.ndarray
         a NxN correlation matrix with the columns and rows rearranged
     """
-    if not distance_mathod:
+    if not distance_method:
         pairwise_distances = sch.distance.pdist(corr_array)#, metric='correlation')
-    elif distance_mathod == "oneminus":
+    elif distance_method == "oneminus":
         if absolute_value:
             pairwise_distances = squareform(1 - abs(corr_array))
         else:
