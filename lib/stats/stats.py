@@ -20,6 +20,7 @@ def pearson_correlation_coefficient(X):
     X_std = np.std(X, axis=1).reshape(X.shape[0], 1)
     X_tilde = (X-X_mean)/X_std
     pcc = X_tilde@X_tilde.T/N
+    np.fill_diagonal(pcc, 1, wrap=False)
     return pcc
 
 
