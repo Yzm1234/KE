@@ -21,6 +21,8 @@ class MyTestCase(unittest.TestCase):
         df_test = pd.read_csv(test_file, sep="\t")
         filtered_df = remove_low_freq(df_test, 'type', 2)
         self.assertEqual(len(filtered_df.index), 2)
+        filtered_df_2 = remove_low_freq(df_test, 'type', 3)
+        self.assertEqual(len(filtered_df_2.index), 0)
 
 
 if __name__ == '__main__':
