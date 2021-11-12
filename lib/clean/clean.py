@@ -2,6 +2,7 @@ import csv
 import pandas as pd
 import os
 import numpy as np
+import collections
 
 
 def rows_and_cols_quant_filter(data, start_col_index=5, cutoff=0, pandas=True):
@@ -35,3 +36,21 @@ def rows_and_cols_quant_filter(data, start_col_index=5, cutoff=0, pandas=True):
     else:
         pass
     return res
+
+
+def remove_low_freq(df, target, threshold):
+    """
+    This method removes data whose frequency is below a threshold
+    :param df: input data
+    :type df: pandas dataframe work
+    :param target: the column name we want to count
+    :type target: string
+    :param threshold: threshold to filter low frequency data
+    :type threshold: integer
+    :return: filtered data
+    :rtype: pandas df
+    """
+    counter = collections.Counter(df[target]).most_common()
+    low_freq_list = [item[0] for item in counter if item[1] < threshold]
+    high_freq_df = df.loc[~df[target].isin(low_freq_list)]
+    return high_freq_df
