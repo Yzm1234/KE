@@ -3,6 +3,7 @@ import collections
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn import preprocessing
 
 
 def dataset_split(df, train=0.7, val=0.2, test=0.1):
@@ -15,6 +16,15 @@ def dataset_split(df, train=0.7, val=0.2, test=0.1):
 
 
 def dataset_balancing(df, each_class_count):
+    """
+    This methods takes in pandas df
+    :param df: data, first column is label and rest are features
+    :type df: pandas dataframe work
+    :param each_class_count: how many data samples of each label
+    :type each_class_count: int
+    :return: new data after balancing
+    :rtype: pandas dataframe work
+    """
     X, y = df.iloc[:, 1:], df.iloc[:, 0]
     counter = collections.Counter(y).most_common()
     # create downsampling sampling_strategy map
@@ -30,4 +40,15 @@ def dataset_balancing(df, each_class_count):
     X_oversampled, y_oversampled = over_sampler.fit_resample(X_undersampled, y_undersampled)
     X_oversampled.insert(0, 'biome', y_oversampled)
     return X_oversampled
+
+
+def normalization(df, method, first_numerical_col_idx=2):
+    values_array = df.iloc[:, first_numerical_col_idx:].to_numpy()
+    if method == "standard":
+        scaler = preprocessing.StandardScaler().fit(values_array)
+        values_scaled = scaler.transform(values_array)
+    elif method == "minmax":
+        values_scaled = preprocessing.MinMaxScaler().fit_transform(values_array)
+    df[df.columns[first_numerical_col_idx:]] = values_scaled
+    return df
 
