@@ -4,6 +4,7 @@ from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn import preprocessing
+import category_encoders as ce
 
 
 def dataset_split(df, train=0.7, val=0.2, test=0.1):
@@ -52,3 +53,10 @@ def normalization(df, method, first_numerical_col_idx=2):
     df[df.columns[first_numerical_col_idx:]] = values_scaled
     return df
 
+
+def encode(df):
+    encoder = ce.OrdinalEncoder(mapping=[
+        {'col': 'exptype', 'mapping': {'assembly': 0, 'metagenomic': 1}}
+    ])
+    df = encoder.fit_transform(df)
+    return df
