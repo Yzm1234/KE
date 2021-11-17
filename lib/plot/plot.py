@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
+from sklearn.metrics import classification_report
 
 
 def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
@@ -24,3 +25,9 @@ def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
     plt.savefig(os.path.join(catboost_info_path, "training_curve.png"), bbox_inches='tight')
     plt.show()
 
+
+def save_f1_report(y_pred, y_test):
+    report_df = pd.DataFrame(classification_report(y_test, y_pred, output_dict=True)).transpose()
+    report_df.support = report_df.support.astype(int)
+    report_df = report_df.round(3)
+    report_df.to_csv("F1_report.tsv", sep="\t")
