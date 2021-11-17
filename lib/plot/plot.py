@@ -22,7 +22,7 @@ def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
     ax2.plot(list(range(epoch)), val_info[metrics], label="val acc", color='red', linestyle='dashed')
     ax2.set_ylabel("Accuracy")
     ax2.legend(loc='center left', bbox_to_anchor=(1.1, 0.8))
-    plt.savefig(os.path.join(catboost_info_path, "training_curve.png"), bbox_inches='tight')
+    plt.savefig("training_curve.png", bbox_inches='tight')
     plt.show()
 
 
