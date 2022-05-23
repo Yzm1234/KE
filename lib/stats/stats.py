@@ -2,11 +2,14 @@ import csv
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 from scipy.spatial.distance import squareform
+from sklearn.metrics import classification_report
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 import seaborn as sns
+from pathlib import Path
 from matplotlib.pyplot import figure
+from ..plot import plot
 
 
 def pearson_correlation_coefficient(X):
@@ -164,3 +167,148 @@ def pairwise_correlation(names_list, pcc_mat):
             res.append([obj_2, obj_1, v])
     return res
 
+
+def top_prob_labels(class_list, sample, prob_array, num_prob=None, plot=False, num_bar=10):
+    """
+    This method gives num most likely labels based on probability and plot the bar char
+    :param class_list: the model class name in order
+    :type class_list: list
+    :param sample: test sample name list
+    :type sample: list
+    :param prob_array: probabilities of every sample being classified as every class
+    :type prob_array: 2d numpy array of shape (N*C) N is the number of data points, C is the number of classes
+    :param num_prob: the number of most likely classes
+    :type num_prob: int
+    :param plot: if plot bar char for top labels
+    :type plot: boolean
+    :param num_bar: number of bar in each plot
+    :type num_bar: int
+    :return: result in format [(class1, p1), (class2, p2), (class3, p3)] if num == 3
+    :rtype: list
+    """
+    if not num_prob:
+        num_prob = len(class_list)
+    if num_prob > len(class_list):
+        raise ValueError('Number of top possible labels should be no more than total number of classes')
+    if len(sample) != prob_array.shape[0]:
+        raise ValueError("Number of samples and probability matrix row don't match")
+    res = []
+    for row in prob_array:
+        sorted_idx = np.argsort(row)[::-1]  # from highest to lowest
+        res.append([(class_list[idx], row[idx]) for idx in sorted_idx[:num_prob]])
+    if plot:
+        Path("top_labels_bar_chart/").mkdir(parents=True, exist_ok=True)
+        for i, pair in enumerate(res):
+            label, prob = zip(*pair[:num_bar])
+            plt.barh(label, prob)
+            plt.title('{}'.format(sample[i]))
+            plt.gca().invert_yaxis()
+            plt.xlabel('probability')
+            plt.savefig("top_labels_bar_chart/{}.png".format(sample[i]), bbox_inches='tight')
+            plt.show()
+    return res
+
+
+def get_macro_and_weight_score(auc_dict, weight_dict):
+    """
+    This methods takes an auc_dict and weight_dic and return the macro and weighted average auc score
+    :param auc_dict: a dictionary (key: label, value: auc score of the label)
+    :type auc_dict: dictionary
+    :param weight_dict: a dictionary (key: label, value: weight of the label)
+    :type weight_dict: dictionary
+    :return: macro auc score and weighted auc score
+    :rtype: tuple
+    """
+    macro_auc = np.mean([score for _, score in auc_dict.items()])
+    weighted_auc = 0
+    for label, auc_score in auc_dict.items():
+        weighted_auc += auc_dict[label] * weight_dict[label]
+    return macro_auc, weighted_auc
+
+
+def get_weight(y_test):
+    weight = {}
+    counter = Counter(y_test)
+    for label, cnt in counter.items():
+        weight[label] = cnt/len(y_test)
+    return weight
+
+
+def insert_roc_pr(report, roc_auc, pr_auc, weight):
+    """
+    This method insert roc auc score and pr auc score columns to original sklearn.metrics generating classification_report
+    :param report: a report dataframe work
+    :type report: pandas dataframe work
+    :param roc_auc: each label's roc auc score
+    :type roc_auc: dictionary
+    :param pr_auc: each label's pr auc score
+    :type pr_auc: dictionary
+    :param weight: each label's weight
+    :type weight: dictionary
+    :return: report
+    :rtype: pandas dataframe work
+    """
+    macro_roc, weighted_roc = get_macro_and_weight_score(roc_auc, weight)
+    macro_pr, weighted_pr = get_macro_and_weight_score(pr_auc, weight)
+    roc_list = [roc_auc[label] for label in report.index[:-3]] + [report.loc['accuracy'][0]] + [macro_roc, weighted_roc]
+    pr_list = [pr_auc[label] for label in report.index[:-3]] + [report.loc['accuracy'][0]] + [macro_pr, weighted_pr]
+    report.insert(3, 'roc-auc', roc_list)
+    report.insert(4, 'pr-auc', pr_list)
+    return report
+
+
+def save_report(report):
+    report.support = report.support.astype(int)
+    report = report.round(3)
+    report.to_csv("model_analysis_result/score_report.tsv", sep="\t")
+
+
+def model_analysis(model, X_test, y_test):
+    """
+    This method will output all analysis results together (ROC, PR, confusino matrix, feature importance)
+    :param model: Catboost model
+    :type model: Catboost model object
+    :param X_test: Test set
+    :type X_test: Pandas dataframe work
+    :param y_test: True lables of test set
+    :type y_test: list or pandas series
+    :return: score report
+    :rtype: pd framework
+    """
+    y_pred_prob = model.predict(X_test, prediction_type="Probability")
+    y_pred_class = model.predict(X_test)
+    print("ROC curve:\n", "=" * 100)
+    roc_auc = plot.roc(y_test, y_pred_prob, model.classes_, show_plots=False)
+    print("PR curve:\n", "=" * 100)
+    pr_auc = plot.pr(y_test, y_pred_prob, model.classes_, show_plots=False)
+    report = pd.DataFrame(classification_report(y_test, y_pred_class, output_dict=True)).transpose()
+    weight = get_weight(y_test)
+    report = insert_roc_pr(report, roc_auc, pr_auc, weight)
+    save_report(report)
+    print("Confusion matrix:\n", "=" * 100)
+    plot.confusion_matrix(model, X_test, y_test)
+    print("Top probable labels:\n", "=" * 100)
+    top_prob_labels(model.classes_, list(y_test), y_pred_prob, num_prob=5, plot=True, num_bar=8)
+    return report
+
+
+def feature_selection(df, cutoff=0.9):
+    """
+    This method takes features table and filters out features util correlation of any pair is below the cutoff
+    :param df: feature table, N x (M + 1) M: number of features plus one label column ('biome')
+    :type df: pandas dataframe
+    :param cutoff:  when a pair of features correlation coefficient number is above this threshold, the feature
+                    with smaller index will be removed
+    :type cutoff: float
+    :return: feature table after removing highly correlated features
+    :rtype: pandas dataframe work
+    """
+    df = df.set_index('biome')
+    feature_mat = df.to_numpy().transpose()
+    pcc_mat = pearson_correlation_coefficient(feature_mat)
+    feature_mask = feature_extraction(pcc_mat, 0.9)
+    selected_features = df.columns[feature_mask]
+    df = df[selected_features]
+    df.insert(0, 'biome', df.index, True)
+    df = df.reset_index(drop=True)
+    return df

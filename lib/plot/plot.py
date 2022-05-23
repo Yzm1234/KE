@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
 import os
+from pathlib import Path
 import pandas as pd
-from sklearn.metrics import classification_report
+from sklearn.metrics import plot_confusion_matrix
+from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import precision_recall_curve
+from sklearn.preprocessing import label_binarize
 
 
 def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
@@ -26,8 +30,131 @@ def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
     plt.show()
 
 
-def save_f1_report(y_pred, y_test):
-    report_df = pd.DataFrame(classification_report(y_test, y_pred, output_dict=True)).transpose()
-    report_df.support = report_df.support.astype(int)
-    report_df = report_df.round(3)
-    report_df.to_csv("F1_report.tsv", sep="\t")
+def roc(y_true, y_pred, class_list, show_plots=False):
+    """
+    This method plots roc curve and return roc auc score for each class
+    :param y_true: ground truth label
+    :type y_true: a list or numpy array
+    :param y_pred: predicted probabilities of shape: n x m (n is the number of data samples, m is the number of classes)
+    :type y_pred: 2d list or 2d numpy array
+    :param class_list: all classes list, in the same order with y_pred axis 1
+    :type class_list: list
+    :param show_plots: if show single roc curve plot for each class
+    :type show_plots: boolean
+    :return: auc score of each class
+    :rtype: dictionary
+    """
+    Path("model_analysis_result/roc_curve/").mkdir(parents=True, exist_ok=True)
+    y_test = label_binarize(y_true, classes=class_list)  # encode to one-hot vector
+    n_classes = len(class_list)
+    auc_dict = {}
+    fpr_tpr = {}
+    plt.plot([0, 1], [0, 1], linestyle='--', label='No Skill')
+    # plot all curve in one plot
+    for i in range(n_classes):
+        fpr, tpr, _ = roc_curve(y_test[:, i], y_pred[:, i])
+        roc_auc = auc(fpr, tpr)
+        fpr_tpr[class_list[i]] = (fpr, tpr)
+        auc_dict[class_list[i]] = roc_auc
+        plt.plot(
+            fpr,
+            tpr,
+            label="{} AUC score ={:.3f})".format(class_list[i], roc_auc))
+
+    plt.title("Total ROC curve")
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.xlabel('False Positive Rate\n Specificity')
+    plt.ylabel('True Positive Rate\n Recall\n Sensitivity')
+    plt.show()
+    plt.savefig("model_analysis_result/roc_curve/roc_curve_total.png", bbox_inches='tight')
+    # plot and save roc curve for each class
+    for i in range(n_classes):
+        class_ = class_list[i]
+        fpr, tpr = fpr_tpr[class_]
+        auc_score = auc_dict[class_]
+        plt.plot([0, 1], [0, 1], linestyle='--', label='No Skill')
+        plt.plot(
+            fpr,
+            tpr,
+            label="AUC score ={:.3f})".format(auc_score))
+        plt.title("{}".format(class_))
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate\n Recall\n Sensitivity')
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.savefig("model_analysis_result/roc_curve/roc_curv_{}.png".format(class_), bbox_inches='tight')
+        if show_plots:
+            plt.show()
+        else:
+            plt.close()
+    return auc_dict
+
+
+def pr(y_true, y_pred, class_list, show_plots=False):
+    """
+    This method plots precision recall (PR) curve and return PR auc score for each class
+    :param y_true: ground truth label
+    :type y_true: a list or numpy array
+    :param y_pred: predicted probabilities of shape: n x m (n is the number of data samples, m is the number of classes)
+    :type y_pred: 2d list or 2d numpy array
+    :param class_list: all classes list, in the same order with y_pred axis 1
+    :type class_list: list
+    :param show_plots: if show single roc curve plot for each class
+    :type show_plots: boolean
+    :return: auc score of each class
+    :rtype: dictionary
+    """
+    Path("model_analysis_result/pr_curve/").mkdir(parents=True, exist_ok=True)
+    y_test = label_binarize(y_true, classes=class_list)  # encode to one-hot vector
+    n_classes = len(class_list)
+    auc_dict = {}
+    precision_recall = {}
+    # plot all curve in one plot
+    for i in range(n_classes):
+        precision, recall, _ = precision_recall_curve(y_test[:, i], y_pred[:, i])
+        pr_auc = auc(recall, precision)
+        precision_recall[class_list[i]] = (precision, recall)
+        auc_dict[class_list[i]] = pr_auc
+        plt.plot(
+            recall,
+            precision,
+            label="{} AUC score ={:.3f})".format(class_list[i], pr_auc))
+
+    plt.title("Total Precision Recall curve")
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.show()
+    plt.savefig("model_analysis_result/pr_curve/pr_curve_total.png", bbox_inches='tight')
+    # plot and save roc curve for each class
+    for i in range(n_classes):
+        class_ = class_list[i]
+        p, r = precision_recall[class_]
+        auc_score = auc_dict[class_]
+        no_skill = len(y_test[:, i][y_test[:, i] == 1]) / len(y_test[:, i])
+        plt.plot(
+            r,
+            p,
+            label="AUC score ={:.3f})".format(auc_score))
+        plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No Skill')
+        plt.title("{}, {} support".format(class_, sum(y_test[:, i])))
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.savefig("model_analysis_result/pr_curve/pr_curve_{}.png".format(class_), bbox_inches='tight')
+        if show_plots:
+            plt.show()
+        else:
+            plt.close()
+    return auc_dict
+
+
+def confusion_matrix(model, X_test, y_test):
+    plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues,)
+    fig = plt.gcf()
+    fig.set_size_inches(40, 30)
+    plt.xticks(rotation = 90, fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel('prediction', fontsize=40)
+    plt.ylabel('true', fontsize=40)
+    fig.savefig('model_analysis_result/confusion_matrix.png', dpi=500, bbox_inches='tight')
+    plt.show()

@@ -421,7 +421,7 @@ def plot_tsne(df, first_feature_numerical_col_idx=5, hover_name='biome', color_b
                       paper_bgcolor="LightSteelBlue", )
     fig.show()
     if save:
-        fig.write_html(saved_file_name)
+        g
 
 # def plot_pyplot():
 #     fig, ax = plt.subplots()

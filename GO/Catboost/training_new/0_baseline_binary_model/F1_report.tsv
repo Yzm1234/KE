@@ -1,0 +1,52 @@
+	precision	recall	f1-score	support
+root:Engineered:Bioreactor	0.812	0.591	0.684	22
+root:Engineered:Bioremediation:Terephthalate:Wastewater	0.9	1.0	0.947	9
+root:Engineered:Built environment	1.0	0.889	0.941	9
+root:Engineered:Food production	1.0	0.2	0.333	5
+root:Engineered:Food production:Dairy products	1.0	1.0	1.0	4
+root:Engineered:Food production:Fermented beverages	1.0	1.0	1.0	6
+root:Engineered:Solid waste:Composting	1.0	0.75	0.857	4
+root:Engineered:Wastewater	0.909	1.0	0.952	30
+root:Engineered:Wastewater:Activated Sludge	0.909	1.0	0.952	10
+root:Engineered:Wastewater:Water and sludge	1.0	0.889	0.941	9
+root:Environmental:Aquatic:Estuary	1.0	0.333	0.5	3
+root:Environmental:Aquatic:Estuary:Sediment	1.0	0.667	0.8	3
+root:Environmental:Aquatic:Freshwater:Lake	0.8	0.8	0.8	5
+root:Environmental:Aquatic:Freshwater:Sediment	1.0	1.0	1.0	4
+root:Environmental:Aquatic:Lentic:Brackish	0.667	0.222	0.333	9
+root:Environmental:Aquatic:Marine	0.851	0.942	0.894	139
+root:Environmental:Aquatic:Marine:Intertidal zone:Estuary	0.714	1.0	0.833	5
+root:Environmental:Aquatic:Marine:Oceanic	0.76	0.543	0.633	35
+root:Environmental:Aquatic:Marine:Sediment	0.833	0.714	0.769	7
+root:Environmental:Aquatic:Non-marine Saline and Alkaline:Salt crystallizer pond	1.0	1.0	1.0	4
+root:Environmental:Terrestrial:Soil	1.0	0.964	0.982	28
+root:Host-associated:Animal:Digestive system:Fecal	0.977	0.896	0.935	48
+root:Host-associated:Birds	1.0	1.0	1.0	4
+root:Host-associated:Birds:Digestive system	1.0	1.0	1.0	5
+root:Host-associated:Birds:Digestive system:Ceca	1.0	0.857	0.923	7
+root:Host-associated:Human	0.87	0.667	0.755	30
+root:Host-associated:Human:Digestive system	0.873	0.873	0.873	362
+root:Host-associated:Human:Digestive system:Intestine	0.853	0.744	0.795	39
+root:Host-associated:Human:Digestive system:Large intestine	0.512	0.331	0.402	127
+root:Host-associated:Human:Digestive system:Large intestine:Fecal	0.881	0.958	0.918	1477
+root:Host-associated:Human:Digestive system:Large intestine:Sigmoid colon	0.875	0.35	0.5	40
+root:Host-associated:Human:Digestive system:Oral	1.0	0.357	0.526	14
+root:Host-associated:Human:Digestive system:Oral:Saliva	1.0	0.75	0.857	8
+root:Host-associated:Human:Skin	0.961	0.989	0.975	273
+root:Host-associated:Human:Skin:Naris	1.0	0.833	0.909	12
+root:Host-associated:Mammals	1.0	1.0	1.0	4
+root:Host-associated:Mammals:Digestive system	1.0	0.882	0.938	17
+root:Host-associated:Mammals:Digestive system:Fecal	1.0	0.273	0.429	22
+root:Host-associated:Mammals:Digestive system:Foregut:Rumen	1.0	0.5	0.667	18
+root:Host-associated:Mammals:Digestive system:Large intestine	1.0	0.941	0.97	17
+root:Host-associated:Mammals:Digestive system:Large intestine:Fecal	1.0	1.0	1.0	6
+root:Host-associated:Mammals:Digestive system:Stomach:Rumen	1.0	1.0	1.0	4
+root:Host-associated:Mammals:Gastrointestinal tract:Intestine:Fecal	0.88	1.0	0.936	22
+root:Host-associated:Mammals:Respiratory system	1.0	1.0	1.0	6
+root:Host-associated:Plants	1.0	0.667	0.8	6
+root:Host-associated:Plants:Phylloplane	1.0	1.0	1.0	4
+root:Host-associated:Plants:Rhizosphere	1.0	1.0	1.0	14
+root:Mixed:Sediment:Sediment:Sediment	0.995	1.0	0.997	199
+accuracy	0.89	0.89	0.89	0
+macro avg	0.934	0.799	0.839	3135
+weighted avg	0.886	0.89	0.88	3135
