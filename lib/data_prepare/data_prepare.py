@@ -3,6 +3,7 @@ import collections
 from imblearn.over_sampling import SMOTE
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
+from pathlib import Path
 from sklearn import preprocessing
 import category_encoders as ce
 
@@ -13,6 +14,17 @@ def dataset_split(df, train=0.7, val=0.2, test=0.1):
     val_test_ratio = val/(val+test)
     df_val, df_test = train_test_split(df_rest, train_size=val_test_ratio, random_state=42, stratify=df_rest['biome'])
     assert set(df_train['biome']) == set(df_val['biome']) == set(df_test['biome'])
+    # save dataset
+    Path("splitted_dataset").mkdir(exist_ok=True)
+    Path("splitted_dataset/train_set").mkdir(exist_ok=True)
+    df_train.to_csv('splitted_dataset/train_set/train_set.tsv', sep="\t", index=False)
+    df_train.to_pickle('splitted_dataset/train_set/test_set.pkl')
+    Path("splitted_dataset/val_set").mkdir(exist_ok=True)
+    df_val.to_csv('splitted_dataset/val_set/test_set.tsv', sep="\t", index=False)
+    df_val.to_pickle('splitted_dataset/val_set/test_set.pkl')
+    Path("splitted_dataset/test_set").mkdir(exist_ok=True)
+    df_test.to_csv('splitted_dataset/test_set/test_set.tsv', sep="\t", index=False)
+    df_test.to_pickle('splitted_dataset/test_set/test_set.pkl')
     return df_train, df_val, df_test
 
 

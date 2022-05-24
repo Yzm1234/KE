@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 import pandas as pd
+from sklearn.metrics import classification_report
 from sklearn.metrics import plot_confusion_matrix
 from sklearn.metrics import roc_curve, auc
 from sklearn.metrics import precision_recall_curve
@@ -9,6 +10,7 @@ from sklearn.preprocessing import label_binarize
 
 
 def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
+    Path("output").mkdir(exist_ok=True)
     train_tsv = os.path.join(catboost_info_path, "learn_error.tsv")
     val_tsv = os.path.join(catboost_info_path, "test_error.tsv")
     with open(train_tsv, 'r') as f:
@@ -26,7 +28,7 @@ def plot_training_curve(catboost_info_path, loss_function, metrics, epoch):
     ax2.plot(list(range(epoch)), val_info[metrics], label="val acc", color='red', linestyle='dashed')
     ax2.set_ylabel("Accuracy")
     ax2.legend(loc='center left', bbox_to_anchor=(1.1, 0.8))
-    plt.savefig("training_curve.png", bbox_inches='tight')
+    plt.savefig("output/training_curve.png", bbox_inches='tight')
     plt.show()
 
 
@@ -149,12 +151,21 @@ def pr(y_true, y_pred, class_list, show_plots=False):
 
 
 def confusion_matrix(model, X_test, y_test):
-    plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues,)
+    Path("output").mkdir(exist_ok=True)
+    plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues,normalize='true')
     fig = plt.gcf()
     fig.set_size_inches(40, 30)
     plt.xticks(rotation = 90, fontsize=20)
     plt.yticks(fontsize=20)
     plt.xlabel('prediction', fontsize=40)
     plt.ylabel('true', fontsize=40)
-    fig.savefig('model_analysis_result/confusion_matrix.png', dpi=500, bbox_inches='tight')
+    fig.savefig('output/confusion_matrix.png', dpi=500, bbox_inches='tight')
     plt.show()
+
+def save_f1_report(y_test, y_pred):
+    Path("output").mkdir(exist_ok=True)
+    report = classification_report(y_test, y_pred, digits=3, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    pd.set_option("display.precision", 3)
+    df.to_csv("output/f1_score.tsv", sep="\t", float_format='%.3f')
+
