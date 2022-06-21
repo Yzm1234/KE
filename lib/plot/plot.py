@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import os
-from pathlib import Path
 import pandas as pd
+import plotly.graph_objects as go
+
+from pathlib import Path
 from sklearn.metrics import classification_report
 from sklearn.metrics import plot_confusion_matrix
 from sklearn.metrics import roc_curve, auc
@@ -152,10 +154,10 @@ def pr(y_true, y_pred, class_list, show_plots=False):
 
 def confusion_matrix(model, X_test, y_test):
     Path("output").mkdir(exist_ok=True)
-    plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues,normalize='true')
+    plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues, normalize='true')
     fig = plt.gcf()
     fig.set_size_inches(40, 30)
-    plt.xticks(rotation = 90, fontsize=20)
+    plt.xticks(rotation=90, fontsize=20)
     plt.yticks(fontsize=20)
     plt.xlabel('prediction', fontsize=40)
     plt.ylabel('true', fontsize=40)
@@ -171,7 +173,7 @@ def save_f1_report(y_test, y_pred):
     df.to_csv("output/f1_score.tsv", sep="\t", float_format='%.3f')
 
 
-def correlation_heatmap(model, test_df):
+def confusion_heatmap(model, test_df):
     Path("output").mkdir(exist_ok=True)
     X_test = test_df.iloc[:, 1:]
     y_test = test_df['biome']
@@ -185,3 +187,52 @@ def correlation_heatmap(model, test_df):
     fig.savefig('output/confusion_matrix.png', dpi=500, bbox_inches='tight')
     plt.show()
 
+
+def plot_f1_scatter(y_test, y_pred):
+    Path("output").mkdir(exist_ok=True)
+
+    report = classification_report(y_test, y_pred, digits=3, output_dict=True)
+    f1 = pd.DataFrame(report).transpose()
+    pd.set_option("display.precision", 3)
+
+    f1.drop(f1.tail(3).index, inplace=True)
+    f1.sort_values(by='f1-score', inplace=True)
+
+    new_label = []
+    for i, row in f1.iterrows():
+        label = "{} ({})".format(row['biome'], int(row['support']))
+        new_label.append(label)
+
+    fig = go.Figure()
+
+    # Add traces
+    fig.add_trace(go.Scatter(x=f1.precision, y=new_label,
+                             mode='markers',
+                             marker=dict(symbol='cross'),
+                             name='precision'))
+    fig.add_trace(go.Scatter(y=new_label, x=f1.recall,
+                             mode='markers',
+                             marker=dict(symbol='square'),
+                             name='recall'))
+    fig.add_trace(go.Scatter(y=new_label,
+                             x=f1['f1-score'],
+                             mode='markers',
+                             name='f1-score',
+                             marker=dict(
+                                 size=8 + f1.support * 0.7,
+                                 symbol='circle'),
+                             )
+                  )
+    fig.update_xaxes(tickfont=dict(size=14))
+    fig.update_yaxes(tickfont=dict(size=14))
+    fig.update_layout(modebar_add="togglespikelines",
+                      autosize=False,
+                      width=1050,
+                      height=1050,
+                      paper_bgcolor="LightSteelBlue", )
+    fig.update_layout(legend=dict(font=dict(family="Courier", size=20, color="black")),
+                      legend_title=dict(font=dict(family="Courier", size=50, color="blue")))
+    fig.update_layout(
+        xaxis={'side': 'top'}, )
+    fig.show()
+    fig.write_html("output/f1_scatter_plot.html")

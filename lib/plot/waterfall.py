@@ -65,13 +65,16 @@ class WaterFall:
         for biome_index, biome in enumerate(self.model.classes_):
             biome_dir = os.path.join(output_path, biome)
             Path(biome_dir).mkdir(exist_ok=True)
+
+            go_term_description = self.read_feature_description(go_term_description_path)
+            features_with_description = self.get_feature_description(go_term_description, avg_X.columns.tolist())
             # plot
             samples_idxes = np.where(labels == biome)[0]  # return an array
             samples_avg_shap_values = np.mean(shap_values[biome_index][samples_idxes], axis=0)
             shap.waterfall_plot(shap.Explanation(samples_avg_shap_values,
                                                  base_values=explainer.expected_value[biome_index],
                                                  data=avg_X.iloc[biome_index],
-                                                 feature_names=avg_X.columns.tolist()),
+                                                 feature_names=features_with_description),
                                 max_display=10,
                                 show=False)
             fig = plt.gcf()
@@ -79,9 +82,8 @@ class WaterFall:
             plt.clf()
 
             # tsv file
-            soorted_importantce = sorted(samples_avg_shap_values, key=abs, reverse=True)[:top_n]
+            sorted_importantce = sorted(samples_avg_shap_values, key=abs, reverse=True)[:top_n]
             sorted_features = avg_X.columns[np.argsort(abs(samples_avg_shap_values))[::-1]][:top_n]
-            go_term_description = self.read_feature_description(go_term_description_path)
             sorted_features_with_description = self.get_feature_description(go_term_description, sorted_features)
             with open(os.path.join(biome_dir, 'top_features.tsv'), 'w') as f:
                 writer = csv.writer(f, delimiter="\t")
@@ -90,5 +92,6 @@ class WaterFall:
                     go = sorted_features_with_description[i][0]
                     description = sorted_features_with_description[i][1]
                     category = sorted_features_with_description[i][2]
-                    importance = soorted_importantce[i]
+                    importance = sorted_importantce[i]
                     writer.writerow([go, description, category, importance])
+        return shap_values
