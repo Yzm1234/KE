@@ -312,3 +312,18 @@ def feature_selection(df, cutoff=0.9):
     df.insert(0, 'biome', df.index, True)
     df = df.reset_index(drop=True)
     return df
+
+
+def get_high_present_samples(df, first_numerical_col_idx, threshold):
+    df.reset_index(drop=True, inplace=True)
+    bin_df = df.iloc[:, first_numerical_col_idx:]
+    bin_feature = np.where(bin_df.to_numpy()>0, 1, 0)
+    bin_df[:] = bin_feature
+    present_sum = bin_df.sum(axis=1)
+    great = []
+    for i, n in enumerate(present_sum):
+        if n >= threshold:
+            great.append(i)
+    df = df.filter(items=great, axis=0)
+    return df
+

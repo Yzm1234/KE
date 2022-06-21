@@ -162,10 +162,26 @@ def confusion_matrix(model, X_test, y_test):
     fig.savefig('output/confusion_matrix.png', dpi=500, bbox_inches='tight')
     plt.show()
 
+
 def save_f1_report(y_test, y_pred):
     Path("output").mkdir(exist_ok=True)
     report = classification_report(y_test, y_pred, digits=3, output_dict=True)
     df = pd.DataFrame(report).transpose()
     pd.set_option("display.precision", 3)
     df.to_csv("output/f1_score.tsv", sep="\t", float_format='%.3f')
+
+
+def correlation_heatmap(model, test_df):
+    Path("output").mkdir(exist_ok=True)
+    X_test = test_df.iloc[:, 1:]
+    y_test = test_df['biome']
+    plot_confusion_matrix(model, X_test, y_test, cmap=plt.cm.Blues, normalize='true')
+    fig = plt.gcf()
+    fig.set_size_inches(40, 30)
+    plt.xticks(rotation=90, fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel('Predicted lable', fontsize=40)
+    plt.ylabel('True lable', fontsize=40)
+    fig.savefig('output/confusion_matrix.png', dpi=500, bbox_inches='tight')
+    plt.show()
 
