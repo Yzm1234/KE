@@ -76,6 +76,7 @@ class WaterFall:
                                 show=False)
             fig = plt.gcf()
             fig.savefig(os.path.join(biome_dir, '{}_waterfall.png'.format(biome)), bbox_inches='tight')
+            plt.clf()
 
             # tsv file
             soorted_importantce = sorted(samples_avg_shap_values, key=abs, reverse=True)[:top_n]
