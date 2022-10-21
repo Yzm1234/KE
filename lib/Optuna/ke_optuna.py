@@ -21,7 +21,7 @@ parser.add_argument("input_file", help="input file path")
 parser.add_argument("output_folder", help="output folder path")
 parser.add_argument("sampler", help="Optuna sampler", choices=["RandomSampler", "TPESampler", "CmaEsSampler"])
 parser.add_argument("-k", "--kfold", default=5, type=int, help="k fold validation")
-parser.add_argument("-t", "--trial_number", default="100", type=int, help="total number of trials in an Optuna study")
+parser.add_argument("-t", "--trial_number", default=100, type=int, help="total number of trials in an Optuna study")
 parser.add_argument("-r", "--resume", action='store_true',
                     help="if resume from an existing study. It will complete the trial number if not finished by previous study")
 global args
