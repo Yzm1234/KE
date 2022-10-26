@@ -1,4 +1,5 @@
 import argparse
+import joblib
 import json
 import os
 import pickle
@@ -54,9 +55,9 @@ def objective(trial: optuna.Trial):
         params = {
             'depth': trial.suggest_int("depth", 4, 10, step=2),  # Maximum tree depth is 16
             'learning_rate': trial.suggest_float("learning_rate", 0.1, 0.3, step=0.05),
-            'l2_leaf_reg': trial.suggest_int("l2_leaf_reg", 2, 4, step=1),
-            'random_strength': trial.suggest_int("random_strength", 1, 5, step=1),
-            'bagging_temperature': trial.suggest_int("bagging_temperature", 0, 5, step=1),
+            # 'l2_leaf_reg': trial.suggest_int("l2_leaf_reg", 2, 4, step=1),
+            # 'random_strength': trial.suggest_int("random_strength", 1, 5, step=1),
+            # 'bagging_temperature': trial.suggest_int("bagging_temperature", 0, 5, step=1),
         }
         gbm = cb.CatBoostClassifier(
             custom_metric='Accuracy',
@@ -84,32 +85,30 @@ def ke_optuna(study_name, sampler, n_trials, output_dir):
     elif sampler == "CmaEsSampler":
         optuna_sampler = optuna.samplers.CmaEsSampler()
 
-    study_path = os.path.join(output_dir, "{}.pkl".format(study_name))
+    os.chdir(output_dir)
+    storage_name = "sqlite:///{}.db".format(study_name)
     if args.resume:
         # resume from existing study
         print("Loading previous study...")
-        with open(study_path, 'rb') as f:
-            study = pickle.load(f)
+        study = optuna.create_study(study_name=study_name, storage=storage_name, load_if_exists=True,
+                                    sampler=optuna_sampler)
         print("Loading finished.")
         if len(study.trials) < args.trial_number:
             n_trials = args.trial_number - len(study.trials)
-            print("Loaded study has completed {} trials, will continue another {} trials ".format(len(study.trials), n_trials)
-                  )
+            print("Loaded study has completed {} trials, will continue another {} trials ".format(len(study.trials),
+                                                                                                  n_trials))
 
         else:
             print("Loaded study has completed all {} trials, the optimization is done.".format(args.trial_number))
             return
     else:
+        if os.path.exists(storage_name):
+            os.remove(storage_name)
         # create a new study
-        study = optuna.create_study(direction="maximize",
-                                    study_name=study_name,
-                                    sampler=optuna_sampler)
+        study = optuna.create_study(study_name=study_name, storage=storage_name, sampler=optuna_sampler)
 
     study.optimize(objective, n_trials=n_trials)
 
-    # save study
-    with open(study_path, 'wb') as f:
-        pickle.dump(study, f)
     # save best params to json file
     with open(os.path.join(output_dir, 'best_params.json'), 'w') as fp:
         json.dump(study.best_params, fp)
