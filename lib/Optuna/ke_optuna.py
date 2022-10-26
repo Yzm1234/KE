@@ -102,8 +102,8 @@ def ke_optuna(study_name, sampler, n_trials, output_dir):
             print("Loaded study has completed all {} trials, the optimization is done.".format(args.trial_number))
             return
     else:
-        if os.path.exists(storage_name):
-            os.remove(storage_name)
+        if os.path.exists("{}.db".format(study_name)):
+            os.remove("{}.db".format(study_name))
         # create a new study
         study = optuna.create_study(study_name=study_name, storage=storage_name, sampler=optuna_sampler)
 
