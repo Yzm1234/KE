@@ -1,8 +1,6 @@
 import argparse
-import joblib
 import json
 import os
-import pickle
 from pathlib import Path
 
 import catboost as cb
@@ -55,9 +53,9 @@ def objective(trial: optuna.Trial):
         params = {
             'depth': trial.suggest_int("depth", 4, 10, step=2),  # Maximum tree depth is 16
             'learning_rate': trial.suggest_float("learning_rate", 0.1, 0.3, step=0.05),
-            # 'l2_leaf_reg': trial.suggest_int("l2_leaf_reg", 2, 4, step=1),
-            # 'random_strength': trial.suggest_int("random_strength", 1, 5, step=1),
-            # 'bagging_temperature': trial.suggest_int("bagging_temperature", 0, 5, step=1),
+            'l2_leaf_reg': trial.suggest_int("l2_leaf_reg", 2, 4, step=1),
+            'random_strength': trial.suggest_int("random_strength", 1, 5, step=1),
+            'bagging_temperature': trial.suggest_int("bagging_temperature", 0, 5, step=1),
         }
         gbm = cb.CatBoostClassifier(
             custom_metric='Accuracy',
@@ -90,7 +88,7 @@ def ke_optuna(study_name, sampler, n_trials, output_dir):
     if args.resume:
         # resume from existing study
         print("Loading previous study...")
-        study = optuna.create_study(study_name=study_name, storage=storage_name, load_if_exists=True,
+        study = optuna.create_study(direction="maximize", study_name=study_name, storage=storage_name, load_if_exists=True,
                                     sampler=optuna_sampler)
         print("Loading finished.")
         if len(study.trials) < args.trial_number:
@@ -105,7 +103,7 @@ def ke_optuna(study_name, sampler, n_trials, output_dir):
         if os.path.exists("{}.db".format(study_name)):
             os.remove("{}.db".format(study_name))
         # create a new study
-        study = optuna.create_study(study_name=study_name, storage=storage_name, sampler=optuna_sampler)
+        study = optuna.create_study(direction="maximize", study_name=study_name, storage=storage_name, sampler=optuna_sampler)
 
     study.optimize(objective, n_trials=n_trials)
 
