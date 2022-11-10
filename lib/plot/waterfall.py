@@ -17,12 +17,12 @@ from catboost import CatBoostClassifier
 parser = argparse.ArgumentParser(description="Catboost model feature importance analysis")
 parser.add_argument("model", help="CatBoost model path, json file")
 parser.add_argument("test_dataset", help="test_dataset_path")
+parser.add_argument("params", help="path to Catboost model hyper-parameters json file")
 parser.add_argument("output_folder", help="output folder path")
 parser.add_argument("-g", "--group_by", choices=["prediction", "ground_truth"],
                     help="the label by which to group samples for each biome")
 parser.add_argument("-n", "--top_n", default=10, type=int, help="top n features plotted in waterfall plot")
 parser.add_argument("-d", "--feature_description", action='store_true',
-                    default="/global/cfs/cdirs/kbase/KE-Catboost/ziming/GO/data/go_terms/go_terms_description_category.json",
                     help="feature description path, now only available for GO data")
 
 global args
@@ -30,13 +30,16 @@ args = parser.parse_args()
 
 
 class WaterFall:
-    def __init__(self, model, test_set):
+    def __init__(self, model, test_set, params):
         model_params = CatBoostClassifier(
             loss_function='MultiClass',
             custom_metric='Accuracy',
-            learning_rate=0.15,
+            depth=params['depth'],
+            learning_rate=params['learning_rate'],
+            l2_leaf_reg=params['l2_leaf_reg'],
+            random_strength=params['random_strength'],
+            bagging_temperature=params['bagging_temperature'],
             random_seed=42,
-            l2_leaf_reg=3,
             iterations=2000,
         )
         self.model = model_params.load_model(model, format='json')
@@ -87,7 +90,6 @@ class WaterFall:
             avg_X = self.test_set.groupby(['biome']).mean()
             labels = y_test
 
-        print("reading feature descprition")
         # load feature description
         if add_description:
             description = self.read_feature_description(description_path)
@@ -98,12 +100,10 @@ class WaterFall:
 
         Path(output_path).mkdir(exist_ok=True)
         for biome_index, biome in enumerate(self.model.classes_):
-            print(biome)
             # create subdir for each class
             biome_dir = os.path.join(output_path, biome)
             Path(biome_dir).mkdir(exist_ok=True)
 
-            print("\tDescription loaded, start ploting")
             # plot waterfall for each class
             samples_idxes = np.where(labels == biome)[0]  # return an array
             samples_avg_shap_values = np.mean(shap_values[biome_index][samples_idxes], axis=0)
@@ -113,11 +113,11 @@ class WaterFall:
                                                  feature_names=features),
                                 max_display=top_n,
                                 show=False)
-            print("\tplotting")
+
             fig = plt.gcf()
             fig.savefig(os.path.join(biome_dir, '{}_waterfall.png'.format(biome)), bbox_inches='tight')
             plt.clf()
-            print("\tcreating tsv file")
+
             # save feature importance table in tsv file
             sorted_importantce = sorted(samples_avg_shap_values, key=abs, reverse=True)
             sorted_features = avg_X.columns[np.argsort(abs(samples_avg_shap_values))[::-1]]
@@ -140,16 +140,17 @@ class WaterFall:
                         feature = sorted_features[i]
                         importance = sorted_importantce[i]
                         writer.writerow([feature, importance])
-            print("\ttsv file is done.")
         return
 
 
 if __name__ == "__main__":
-    wf = WaterFall(args.model, args.test_dataset)
+    with open(args.params) as json_file:
+        params = json.load(json_file)
+    wf = WaterFall(args.model, args.test_dataset, params)
     if args.feature_description:
-        wf.get_feature_importance(groupby=args.group_by, output_path=args.output_folder, top_n=args.top_n,
-                                  add_description=True,
-                                  description_path=args.feature_description)
+        add_desc = True
     else:
-        wf.get_feature_importance(groupby=args.group_by, output_path=args.output_folder, top_n=args.top_n)
+        add_desc = False
+    wf.get_feature_importance(groupby=args.group_by, output_path=args.output_folder, top_n=args.top_n,
+                                  add_description=add_desc)
 
