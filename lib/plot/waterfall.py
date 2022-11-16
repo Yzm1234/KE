@@ -9,9 +9,7 @@ import numpy as np
 import pandas as pd
 import shap
 
-
 from catboost import CatBoostClassifier
-
 
 # add arg parser
 parser = argparse.ArgumentParser(description="Catboost model feature importance analysis")
@@ -30,7 +28,9 @@ args = parser.parse_args()
 
 
 class WaterFall:
-    def __init__(self, model, test_set, params):
+    def __init__(self, model, test_set, params_file):
+        with open(params_file) as json_file:
+            params = json.load(json_file)
         model_params = CatBoostClassifier(
             loss_function='MultiClass',
             custom_metric='Accuracy',
@@ -81,6 +81,13 @@ class WaterFall:
         explainer = shap.TreeExplainer(self.model)
         shap_values = explainer.shap_values(X_test, y_test)
 
+        # build map between biome and shap value, biome and shap base value
+        explainer_shap_value_dict = {}
+        explainer_base_value_dict = {}
+        for i in range(len(self.model.classes_)):
+            explainer_shap_value_dict[self.model.classes_[i]] = shap_values[i]
+            explainer_base_value_dict[self.model.classes_[i]] = explainer.expected_value[i]
+
         if groupby == "prediction":  # group by samples prediction labels
             X_test.insert(0, "prediction", y_pred)
             avg_X = X_test.groupby(['prediction']).mean()
@@ -92,6 +99,7 @@ class WaterFall:
 
         # load feature description
         if add_description:
+            print("reading description")
             description = self.read_feature_description(description_path)
             features_with_description_list = self.get_feature_description(description, avg_X.columns.tolist())
             features = [" | ".join(f) for f in features_with_description_list]
@@ -99,19 +107,20 @@ class WaterFall:
             features = avg_X.columns.tolist()
 
         Path(output_path).mkdir(exist_ok=True)
-        for biome_index, biome in enumerate(self.model.classes_):
+
+        for biome_index, biome in enumerate(avg_X.index):
             # create subdir for each class
+            print(biome)
             biome_dir = os.path.join(output_path, biome)
             Path(biome_dir).mkdir(exist_ok=True)
-
             # plot waterfall for each class
             samples_idxes = np.where(labels == biome)[0]  # return an array
-            samples_avg_shap_values = np.mean(shap_values[biome_index][samples_idxes], axis=0)
+            samples_avg_shap_values = np.mean(explainer_shap_value_dict[biome][samples_idxes], axis=0)
             shap.waterfall_plot(shap.Explanation(samples_avg_shap_values,
-                                                 base_values=explainer.expected_value[biome_index],
+                                                 base_values=explainer_base_value_dict[biome],
                                                  data=avg_X.iloc[biome_index],
                                                  feature_names=features),
-                                max_display=top_n,
+                                max_display=10,
                                 show=False)
 
             fig = plt.gcf()
@@ -144,13 +153,13 @@ class WaterFall:
 
 
 if __name__ == "__main__":
-    with open(args.params) as json_file:
-        params = json.load(json_file)
-    wf = WaterFall(args.model, args.test_dataset, params)
+    wf = WaterFall(args.model, args.test_dataset, args.params)
     if args.feature_description:
+        print("add description")
         add_desc = True
     else:
         add_desc = False
+        print("don't add description")
     wf.get_feature_importance(groupby=args.group_by, output_path=args.output_folder, top_n=args.top_n,
-                                  add_description=add_desc)
+                              add_description=add_desc)
 
