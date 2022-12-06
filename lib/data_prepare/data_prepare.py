@@ -1,11 +1,11 @@
-from sklearn.model_selection import train_test_split
 import collections
-from imblearn.over_sampling import SMOTE
+from pathlib import Path
+
+import category_encoders as ce
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
-from pathlib import Path
 from sklearn import preprocessing
-import category_encoders as ce
+from sklearn.model_selection import train_test_split
 
 
 def dataset_split(df, train=0.7, val=0.2, test=0.1):

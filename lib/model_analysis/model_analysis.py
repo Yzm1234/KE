@@ -12,7 +12,7 @@ import json
 def get_feature_importance(model_params, model_path, test_set_path,
                            shap_values_path=None,
                            output_file="feature_importance.tsv",
-                           go_term_description_path="/global/cfs/cdirs/kbase/KE-Catboost/ziming/GO/Catboost/data/"
+                           description_path="/global/cfs/cdirs/kbase/KE-Catboost/ziming/GO/Catboost/data/"
                                                     "go_terms/go_terms_description_category.json"):
     """
     This method takes model and test dataset, return testset feature importance in tsv table
@@ -27,8 +27,8 @@ def get_feature_importance(model_params, model_path, test_set_path,
     :type shap_values_path: string
     :param output_file: output file name, default is "feature_importance.tsv"
     :type output_file: string
-    :param go_term_description_path: go term description path
-    :type go_term_description_path: string
+    :param description_path: go term description path
+    :type description_path: string
     :return: None
     :rtype: None
     """
@@ -63,8 +63,8 @@ def get_feature_importance(model_params, model_path, test_set_path,
     feature_names = X_test.columns
 
     # read feature description
-    with open(go_term_description_path, "r") as f:
-        go_term_description = json.load(f)
+    with open(description_path, "r") as f:
+        description = json.load(f)
 
     # write feature importance table
     with open(output_file, 'w') as f:
@@ -72,7 +72,7 @@ def get_feature_importance(model_params, model_path, test_set_path,
         writer.writerow(['GO', 'description', 'category', 'importance'])
         for i in range(len(list(sorted_features))):
             feature, importance_score = sorted_features[i], sorted_feature_importance_scores[i]
-            feature_desc = go_term_description.get(feature, None)
+            feature_desc = description.get(feature, None)
             if feature_desc:
                 desc, cate = feature_desc['description'].get('4.1', None), feature_desc['category']
                 if desc:

@@ -1,14 +1,15 @@
-import csv
+from collections import Counter
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
+import seaborn as sns
+from matplotlib.pyplot import figure
 from scipy.spatial.distance import squareform
 from sklearn.metrics import classification_report
-import numpy as np
-import matplotlib.pyplot as plt
-from collections import Counter
-import seaborn as sns
-from pathlib import Path
-from matplotlib.pyplot import figure
+
 from ..plot import plot
 
 
@@ -326,4 +327,7 @@ def get_high_present_samples(df, first_numerical_col_idx, threshold):
             great.append(i)
     df = df.filter(items=great, axis=0)
     return df
+
+
+
 

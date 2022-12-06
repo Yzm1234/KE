@@ -184,6 +184,7 @@ class ClusteringTree:
                           height=1050,
                           paper_bgcolor="LightSteelBlue", )
         fig.update_xaxes(tickfont_size=8, tickangle=-45)
+        fig.update_yaxes(tickfont_size=10)
         # get axises tiles
         if self.abs:
             xaxis_title = "Distance: 1 - abs(correlation)"
