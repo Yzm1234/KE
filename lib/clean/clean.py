@@ -3,7 +3,7 @@ import collections
 import pandas as pd
 
 
-def rows_and_cols_quant_filter(data, start_col_index=5, cutoff=0, pandas=True):
+def rows_and_cols_quant_filter(data, start_col_index=1, cutoff=0, pandas=True):
     """
     This method removes rows and cols whose abundance sum is below or equal the cutoff value.
     data: a pandas dataframework or numpy array
