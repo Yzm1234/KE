@@ -306,6 +306,7 @@ def feature_selection(df, cutoff=0.9):
     :rtype: pandas dataframe work
     """
     df = df.set_index('biome')
+    df = clean.rows_and_cols_quant_filter(df, start_col_index=1)
     feature_mat = df.to_numpy().transpose()
     pcc_mat = pearson_correlation_coefficient(feature_mat)
     feature_mask = feature_extraction(pcc_mat, cutoff)
