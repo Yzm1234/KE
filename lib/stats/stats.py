@@ -10,6 +10,7 @@ from matplotlib.pyplot import figure
 from scipy.spatial.distance import squareform
 from sklearn.metrics import classification_report
 
+from ..clean import clean
 from ..plot import plot
 
 
@@ -307,7 +308,7 @@ def feature_selection(df, cutoff=0.9):
     df = df.set_index('biome')
     feature_mat = df.to_numpy().transpose()
     pcc_mat = pearson_correlation_coefficient(feature_mat)
-    feature_mask = feature_extraction(pcc_mat, 0.9)
+    feature_mask = feature_extraction(pcc_mat, cutoff)
     selected_features = df.columns[feature_mask]
     df = df[selected_features]
     df.insert(0, 'biome', df.index, True)
@@ -328,6 +329,24 @@ def get_high_present_samples(df, first_numerical_col_idx, threshold):
     df = df.filter(items=great, axis=0)
     return df
 
+
+def row_corr_filter(df, cutoff=0.9):
+    """
+    filter out rows that are highly correlated
+    :param cutoff: correlation filter threshold
+    :type cutoff: float
+    :param df: data table
+    :type df: pandas df
+    :return: data table
+    :rtype: pandas df
+    """
+    df = clean.rows_and_cols_quant_filter(df, start_col_index=1)
+    df = df.set_index('biome')
+    row_mat = df.to_numpy()
+    pcc_mat = pearson_correlation_coefficient(row_mat)
+    mask = feature_extraction(pcc_mat, cutoff)
+    df = df[mask]
+    return df
 
 
 
